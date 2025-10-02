@@ -1,10 +1,8 @@
-streamlit
-pandas
-numpy
-matplotlib==3.8.2
-seaborn
-statsmodels
-scikit-learn
-yfinance
 pandas
 openpyxl>=3.1.2
+streamlit
+matplotlib
+statsmodels
+scikit-learn
+scipy
+pmdarima
