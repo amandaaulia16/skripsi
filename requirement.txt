@@ -1,5 +1,5 @@
 pandas
-openpyxl>=3.1.2
+openpyxl>=3.1.5
 streamlit
 matplotlib
 statsmodels
