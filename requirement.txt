@@ -1,8 +1,9 @@
 streamlit
 pandas
 numpy
+matplotlib==3.8.2
 seaborn
 statsmodels
 scikit-learn
-openpyxl
 yfinance
+openpyxl
