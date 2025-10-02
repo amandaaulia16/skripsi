@@ -6,4 +6,5 @@ seaborn
 statsmodels
 scikit-learn
 yfinance
-openpyxl
+pandas
+openpyxl>=3.1.2
