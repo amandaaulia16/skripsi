@@ -1,3 +1,11 @@
 streamlit
 pandas
+numpy
+matplotlib
+scikit-learn
+statsmodels
 openpyxl
+optuna
+tensorflow-cpu==2.20.0
+keras-tcn
+plotly
