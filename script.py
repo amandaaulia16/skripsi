@@ -6,7 +6,6 @@ import statsmodels.api as sm
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.tsa.statespace.sarimax import SARIMAX
-from pmdarima.arima import auto_arima
 from sklearn.metrics import mean_absolute_error, mean_squared_error, mean_absolute_percentage_error
 from statsmodels.stats.diagnostic import acorr_ljungbox, het_white
 from scipy.stats import kstest
@@ -42,20 +41,27 @@ elif menu == "Preprocessing":
     st.title("⚙️ Preprocessing Data")
     if 'df' in st.session_state:
         df = st.session_state['df']
-        df = df[['date', 'bbca', 'usd', 'sgd']]
-        df['date'] = pd.to_datetime(df['date'])
-        df.set_index('date', inplace=True)
-        st.session_state['df'] = df
+        
+        # Pastikan kolom yang dibutuhkan ada
+        required_cols = ['date', 'bbca', 'usd', 'sgd']
+        if all(col in df.columns for col in required_cols):
+            df = df[required_cols]
+            df['date'] = pd.to_datetime(df['date'])
+            df.set_index('date', inplace=True)
+            st.session_state['df'] = df
 
-        st.subheader("Data setelah preprocessing")
-        st.dataframe(df.head())
+            st.subheader("Data setelah preprocessing")
+            st.dataframe(df.head())
 
-        # Split data
-        train = df[:1386]
-        test = df[1386:]
-        st.session_state['train'] = train
-        st.session_state['test'] = test
-        st.write("Train shape:", train.shape, " | Test shape:", test.shape)
+            # Split data dengan iloc agar aman
+            split_point = int(len(df) * 0.9)  # 90% train
+            train = df.iloc[:split_point]
+            test = df.iloc[split_point:]
+            st.session_state['train'] = train
+            st.session_state['test'] = test
+            st.write("Train shape:", train.shape, " | Test shape:", test.shape)
+        else:
+            st.error(f"Kolom wajib {required_cols} tidak lengkap di file Excel.")
 
 # ====================================
 # 3. EDA
@@ -117,11 +123,11 @@ elif menu == "Modeling (ARIMAX)":
 
         # Fit ARIMAX
         model = SARIMAX(endog=train_y, exog=x_train, order=(0,1,1))
-        results = model.fit()
+        results = model.fit(disp=False)
         st.session_state['results'] = results
 
         st.subheader("Model Summary")
-        st.text(results.summary())
+        st.text(str(results.summary()))
 
         # Forecast
         forecast = results.get_forecast(steps=len(test_y), exog=x_test)
@@ -172,9 +178,9 @@ elif menu == "Evaluation & Diagnostics":
         st.write(lb_test)
 
         st.subheader("Kolmogorov-Smirnov Test")
-        ks_stat, ks_pval = kstest(test_y, 'norm', args=(test_y.mean(), test_y.std()))
+        ks_stat, ks_pval = kstest(test_y.values, 'norm', args=(test_y.mean(), test_y.std()))
         st.write("KS Statistic:", ks_stat, "| p-value:", ks_pval)
 
         st.subheader("White Test (Heteroskedastisitas)")
-        white_test = het_white(residuals, sm.add_constant(results.fittedvalues))
+        white_test = het_white(residuals.values, sm.add_constant(results.fittedvalues.values))
         st.write("Statistic:", white_test[0], "| p-value:", white_test[1])
