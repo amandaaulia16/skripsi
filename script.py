@@ -21,17 +21,10 @@ if menu == "Collecting Data":
 
     if uploaded_file is not None:
         try:
-            # Coba baca dengan openpyxl
-            import openpyxl
+            # Pastikan openpyxl ada
+            import openpyxl  
             df = pd.read_excel(uploaded_file, engine="openpyxl")
-        except ImportError:
-            st.error("❌ Modul 'openpyxl' belum terinstall. Tambahkan 'openpyxl' di requirements.txt")
-            df = None
-        except Exception as e:
-            st.error(f"❌ Terjadi error saat membaca file: {e}")
-            df = None
 
-        if df is not None:
             # Simpan ke session_state agar bisa dipakai di menu lain
             st.session_state['df'] = df
 
@@ -40,6 +33,14 @@ if menu == "Collecting Data":
             st.dataframe(df.head())
 
             st.success("✅ Data berhasil diupload!")
+
+        except ImportError:
+            st.error("❌ Modul 'openpyxl' belum terinstall. Pastikan 'openpyxl' sudah ada di requirements.txt")
+            st.stop()  # hentikan eksekusi Streamlit supaya tidak error lanjut
+        except Exception as e:
+            st.error(f"❌ Terjadi error saat membaca file: {e}")
+            st.stop()
+
 
 
 # ====================================
