@@ -16,13 +16,26 @@ menu = st.sidebar.radio("Pilih Menu", [
 # ====================================
 if menu == "Collecting Data":
     st.title("📥 Collecting Data")
+
     uploaded_file = st.file_uploader("Upload file Excel", type=["xlsx"])
-    if uploaded_file:
-        df = pd.read_excel(uploaded_file)
-        st.session_state['df'] = df
-        st.subheader("Preview Data")
-        st.dataframe(df.head())
-        st.success("Data berhasil diupload!")
+
+    if uploaded_file is not None:
+        try:
+            # Gunakan engine openpyxl agar lebih aman
+            df = pd.read_excel(uploaded_file, engine="openpyxl")
+
+            # Simpan ke session_state agar bisa dipakai di menu lain
+            st.session_state['df'] = df
+
+            # Tampilkan preview data
+            st.subheader("Preview Data")
+            st.dataframe(df.head())
+
+            st.success("✅ Data berhasil diupload!")
+
+        except Exception as e:
+            st.error(f"Terjadi error saat membaca file: {e}")
+
 
 # ====================================
 # 2. Preprocessing
